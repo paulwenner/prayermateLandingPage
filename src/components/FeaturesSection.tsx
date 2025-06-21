@@ -108,7 +108,7 @@ export const FeaturesSection = () => {
               <div className="aspect-video">
                 <iframe
                   className="w-full h-full"
-                  src="https://www.youtube.com/embed/dQw4w9WgXcQ?rel=0&modestbranding=1&showinfo=0"
+                  src="https://www.youtube.com/embed/0-pTS-l4skQ?rel=0&modestbranding=1&showinfo=0"
                   title="PrayerMate Demo - AI-Powered Prayer Companion"
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"

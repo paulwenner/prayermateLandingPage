@@ -117,10 +117,15 @@ export const HeroSection = () => {
                 Start Praying Now
               </a>
               
-              <button className="inline-flex items-center justify-center gap-3 bg-white text-gray-700 px-8 py-4 rounded-full text-lg font-semibold border border-gray-200 hover:border-gray-300 hover:shadow-lg transition-all duration-300 group">
+              <a
+                href="https://youtu.be/0-pTS-l4skQ"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center gap-3 bg-white text-gray-700 px-8 py-4 rounded-full text-lg font-semibold border border-gray-200 hover:border-gray-300 hover:shadow-lg transition-all duration-300 group"
+              >
                 <Play className="w-5 h-5 group-hover:scale-110 transition-transform" />
                 Watch Demo
-              </button>
+              </a>
             </motion.div>
 
             <motion.p

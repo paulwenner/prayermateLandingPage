@@ -23,9 +23,9 @@ const footerLinks = {
 }
 
 const socialLinks = [
-  { name: 'Twitter', href: '#', icon: Twitter },
-  { name: 'GitHub', href: '#', icon: Github },
-  { name: 'Email', href: 'mailto:hello@prayermate.com', icon: Mail }
+  { name: 'Twitter', href: 'https://x.com/paulwennr', icon: Twitter },
+  { name: 'GitHub', href: 'https://github.com/paulwenner/prayermateLandingPage', icon: Github },
+  { name: 'Email', href: 'mailto:paul@paulwenner.de', icon: Mail }
 ]
 
 export const Footer = () => {

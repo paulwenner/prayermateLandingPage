@@ -1,0 +1,838 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=\nYou are **PrayerMate**, a spirit-filled Christian AI assistant.\n\n**Instructions:**\n\nBased on the user message, follow this decision logic:\n\n1. **If the user clearly confirmed a prayer request** (e.g., by saying “please pray”, “can you pray for”, “bitte bete”, or similar expressions in any language), then respond with:\n\n{  \n  \"tool\": \"PRAYER\",  \n  \"arguments\": {  \n    \"chatId\": \"{{ $('Telegram Trigger').item.json.message.chat.id }}\",  \n    \"message\": \"<I pray for you (in the user's language): <a short prayer (max. 100 words), including a fitting Bible verse, directly related to: ''>>\"  \n  }  \n}  \n\n2. **Otherwise**, respond with an encouragement message (max. 100 words), including a relevant Bible verse:\n\n{  \n  \"tool\": \"MESSAGE\",  \n  \"arguments\": {  \n    \"chatId\": \"{{ $('Telegram Trigger').item.json.message.chat.id }}\",  \n    \"message\": \"<short encouragement with a fitting Bible verse>\"  \n  }  \n}  \n\n**Important:**\n\n* Return **only** valid raw JSON – **no** code blocks, **no** backticks, **no** explanations.\n* Do **not** wrap the output in ` ```json ` or anything similar.\n* Output must be pure JSON – suitable for direct parsing by a bot backend.\n* Answer in the **user's language**, based on:\n  `{{ $('Telegram Trigger').item.json.message.text }}`\n* on default answer in english\n* The `message` field must **contain the full prayer or encouragement**.",
+        "options": {}
+      },
+      "name": "AI Agent1",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "id": "ef9bb5f4-8371-4631-9aa4-702f51f387d5",
+      "position": [
+        -2120,
+        -20
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "name": "OpenAI Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "id": "5334f295-1509-4e41-8eab-9058aa4aafab",
+      "position": [
+        -2180,
+        280
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "kaXG4Zuaec8edmuN",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.rateKey }}"
+      },
+      "name": "Simple Memory1",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "id": "73d22188-51db-4324-9312-c8d844f21695",
+      "position": [
+        -2020,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.tool }}",
+              "value2": "PRAYER"
+            }
+          ]
+        }
+      },
+      "name": "Switch on tool1",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "id": "0fc88892-31e6-4769-90aa-be0c128c46bc",
+      "position": [
+        -1440,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.message.chat.id }}",
+        "text": "={{ $json.content }}",
+        "additionalFields": {}
+      },
+      "name": "Send Message1",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "id": "4994b61c-202e-4472-9631-4ec8e5a86c7d",
+      "position": [
+        -820,
+        560
+      ],
+      "webhookId": "bcae24ff-b1c1-437b-9ce8-4db9f90a7fd7",
+      "credentials": {
+        "telegramApi": {
+          "id": "XQSvE0i6dU6YeQaj",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "headerAuth",
+        "requestMethod": "POST",
+        "url": "=https://api.elevenlabs.io/v1/text-to-speech/bAFkvitDGeDMmqo9gJzO",
+        "responseFormat": "file",
+        "options": {},
+        "bodyParametersUi": {
+          "parameter": [
+            {
+              "name": "text",
+              "value": "={{ $json.content }}"
+            }
+          ]
+        },
+        "headerParametersUi": {
+          "parameter": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "name": "ElevenLabs TTS1",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "id": "1b76cee6-b69f-4838-ab05-c8bbae1a3403",
+      "position": [
+        -920,
+        240
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "gI25JAbxWwZSUnVd",
+          "name": "ElevenLabs API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.message.from.id }}",
+        "text": "={{ $json.content }}",
+        "additionalFields": {}
+      },
+      "name": "Send Prayer Text1",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "id": "75cd7d32-5e9f-4746-af54-24e104c8d13c",
+      "position": [
+        -640,
+        40
+      ],
+      "webhookId": "84389f07-ee11-4349-80e0-79919073039f",
+      "credentials": {
+        "telegramApi": {
+          "id": "XQSvE0i6dU6YeQaj",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendAudio",
+        "chatId": "={{ $json.message.from.id }}",
+        "binaryData": true,
+        "additionalFields": {
+          "fileName": "Amen"
+        }
+      },
+      "name": "Send Prayer Voice1",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "id": "1f8f3bb5-7c18-40e7-9c56-758d82f7cf7a",
+      "position": [
+        -600,
+        320
+      ],
+      "webhookId": "6302a867-65e3-442a-9fef-85e88cd9eea3",
+      "credentials": {
+        "telegramApi": {
+          "id": "XQSvE0i6dU6YeQaj",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combineBySql",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -1240,
+        120
+      ],
+      "id": "a2ed6369-4ad4-4c9b-a4b5-c7e7e2ddd4f1",
+      "name": "Merge2"
+    },
+    {
+      "parameters": {
+        "functionCode": "// Parse the incoming JSON-String\nconst parsed = JSON.parse($json.output);\n\n// Extrahiere tool und arguments\nconst { tool, arguments: args } = parsed;\n\n// Wähle den Nachrichtentext (message) aus\nconst content = args.message;\n\n// Gib ein neues Item mit klaren Feldern zurück\nreturn [{\n  json: {\n    tool,\n    chatId: args.chatId,\n    content,\n  }\n}];"
+      },
+      "name": "Extract Parsed Output",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "id": "8b8e8db0-c5f9-4283-acb7-bcada2250d87",
+      "position": [
+        -1620,
+        260
+      ]
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "id": "b3597876-bd69-4caa-abc5-4b5a08c76787",
+      "position": [
+        -3740,
+        100
+      ],
+      "webhookId": "{{WEBHOOK_ID}}",
+      "credentials": {
+        "telegramApi": {
+          "id": "XQSvE0i6dU6YeQaj",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "// Build rate limit key per user per day\nconst chatId = $json.message.chat.id;\nconst date = new Date().toISOString().slice(0, 10);\nreturn [{ json: { ...$json, rateKey: `${chatId}_${date}` }}];"
+      },
+      "name": "Prepare Rate Key",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "id": "33a801b4-c50b-402a-ae25-2c2235053e7a",
+      "position": [
+        -3500,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "documentId": {
+          "__rl": true,
+          "value": "1Rc_6dq6rm3bAcClZa0UVIoD0UNODavr_9UeLuNMnV2s",
+          "mode": "list",
+          "cachedResultName": "n8n prayerMate",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Rc_6dq6rm3bAcClZa0UVIoD0UNODavr_9UeLuNMnV2s/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Rc_6dq6rm3bAcClZa0UVIoD0UNODavr_9UeLuNMnV2s/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "rateKey",
+              "lookupValue": "={{ $json.rateKey }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Lookup Row",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "id": "1b5d5d6e-4a64-4967-967c-504ebed4accd",
+      "position": [
+        -3280,
+        100
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleApi": {
+          "id": "XrJIS7dfuoeTcdMK",
+          "name": "Google Service Account account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.rateKey ? 1 : 0 }}",
+              "operation": "equal",
+              "value2": 1
+            }
+          ]
+        }
+      },
+      "name": "Row Found?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "id": "cb0fae20-b6e7-400a-bf8d-7b78175924c2",
+      "position": [
+        -3060,
+        100
+      ],
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "functionCode": "// Get the incoming row object\nconst row = $json;\n\n// Parse existing count, increment by 1\nconst newCount = (parseInt(row.count, 10) || 0) + 1;\n\n// Return updated item\nreturn [{\n  json: {\n    row_number: row.row_number,\n    rateKey: row.rateKey,\n    count: newCount\n  }\n}];\n"
+      },
+      "name": "Increment Count",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "id": "fe0f09ec-b7fa-4996-9570-7c2e88edf34c",
+      "position": [
+        -2840,
+        20
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1Rc_6dq6rm3bAcClZa0UVIoD0UNODavr_9UeLuNMnV2s",
+          "mode": "list",
+          "cachedResultName": "n8n prayerMate",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Rc_6dq6rm3bAcClZa0UVIoD0UNODavr_9UeLuNMnV2s/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Rc_6dq6rm3bAcClZa0UVIoD0UNODavr_9UeLuNMnV2s/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "rateKey": "={{ $json.rateKey }}",
+            "count": "={{ $json.count }}"
+          },
+          "matchingColumns": [
+            "rateKey"
+          ],
+          "schema": [
+            {
+              "id": "rateKey",
+              "displayName": "rateKey",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "count",
+              "displayName": "count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "name": "Update Row",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "id": "8814b8aa-5ec2-4274-9570-cd70cd89986a",
+      "position": [
+        -2620,
+        20
+      ],
+      "credentials": {
+        "googleApi": {
+          "id": "XrJIS7dfuoeTcdMK",
+          "name": "Google Service Account account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "functionCode": "// New user: init count\nreturn [{ json: { rateKey: $json.rateKey, count: 1, message: $json.message } }];"
+      },
+      "name": "Init Count",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "id": "7ba1b92b-b111-48ae-978f-fd65229b8761",
+      "position": [
+        -2840,
+        180
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1Rc_6dq6rm3bAcClZa0UVIoD0UNODavr_9UeLuNMnV2s",
+          "mode": "list",
+          "cachedResultName": "n8n prayerMate",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Rc_6dq6rm3bAcClZa0UVIoD0UNODavr_9UeLuNMnV2s/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Rc_6dq6rm3bAcClZa0UVIoD0UNODavr_9UeLuNMnV2s/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "rateKey": "={{ $('Prepare Rate Key').item.json.rateKey }}",
+            "count": "={{ $json.count }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "rateKey",
+              "displayName": "rateKey",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "count",
+              "displayName": "count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "name": "Append Row",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "id": "e8da910d-9a7c-4326-80e4-bcb6135ec972",
+      "position": [
+        -2620,
+        180
+      ],
+      "credentials": {
+        "googleApi": {
+          "id": "XrJIS7dfuoeTcdMK",
+          "name": "Google Service Account account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{ $json.count }}",
+              "value2": 10
+            }
+          ]
+        }
+      },
+      "name": "Within Limit?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "id": "50628b27-46af-45a6-814d-ec125852903c",
+      "position": [
+        -2400,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.message.chat.id }}",
+        "text": "Sorry, you have reached your daily request limit. Please try again tomorrow.",
+        "additionalFields": {}
+      },
+      "name": "Send Limit Notice",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "id": "f187d6d2-9a59-48b9-9ae5-804cd03be797",
+      "position": [
+        -2140,
+        580
+      ],
+      "webhookId": "3cdedb24-d8d1-42b2-9189-bacbaf5554a0",
+      "credentials": {
+        "telegramApi": {
+          "id": "XQSvE0i6dU6YeQaj",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combineBySql",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -1280,
+        540
+      ],
+      "id": "3ca7cb6e-387e-4336-b040-83faf678a5ce",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "mode": "combineBySql",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -2460,
+        580
+      ],
+      "id": "7dd1a67a-3cdb-4a32-83df-60b90c487957",
+      "name": "Merge1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d94dd7ea-ad4f-4d86-88a8-24b170232f5b",
+              "leftValue": "={{ $json.rateKey ? 1 : 0 }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -2300,
+        580
+      ],
+      "id": "878af551-e5ba-40eb-a58a-579e75c77854",
+      "name": "If"
+    }
+  ],
+  "connections": {
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Extract Parsed Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch on tool1": {
+      "main": [
+        [
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "ElevenLabs TTS1": {
+      "main": [
+        [
+          {
+            "node": "Send Prayer Voice1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge2": {
+      "main": [
+        [
+          {
+            "node": "Send Prayer Text1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "ElevenLabs TTS1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Parsed Output": {
+      "main": [
+        [
+          {
+            "node": "Switch on tool1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Prepare Rate Key",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Rate Key": {
+      "main": [
+        [
+          {
+            "node": "Lookup Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lookup Row": {
+      "main": [
+        [
+          {
+            "node": "Row Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Row Found?": {
+      "main": [
+        [
+          {
+            "node": "Increment Count",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Init Count",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Increment Count": {
+      "main": [
+        [
+          {
+            "node": "Update Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Row": {
+      "main": [
+        [
+          {
+            "node": "Within Limit?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Init Count": {
+      "main": [
+        [
+          {
+            "node": "Append Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append Row": {
+      "main": [
+        [
+          {
+            "node": "Within Limit?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Within Limit?": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Send Message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send Limit Notice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0b48f2c09efd08d5813fec0c9fbe6a60d0c7d60b6c4071f6ada889f66326d1d8"
+  }
+}
