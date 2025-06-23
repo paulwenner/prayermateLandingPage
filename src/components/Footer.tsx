@@ -16,16 +16,16 @@ const footerLinks = {
   ],
   support: [
     { name: 'Help Center', href: 'https://t.me/prayermate_bot' },
-    { name: 'Privacy Policy', href: '#' },
-    { name: 'Terms of Service', href: '#' },
-    { name: 'Status', href: '#' }
+    { name: 'Privacy Policy', href: '#privacy-policy' },
+    { name: 'Terms of Service', href: '#terms-of-service' },
+    { name: 'Legal Notice', href: '#legal-notice' }
   ]
 }
 
 const socialLinks = [
   { name: 'Twitter', href: 'https://x.com/paulwennr', icon: Twitter },
   { name: 'GitHub', href: 'https://github.com/paulwenner/prayermateLandingPage', icon: Github },
-  { name: 'Email', href: 'mailto:paul@paulwenner.de', icon: Mail }
+  { name: 'Email', href: 'mailto:paul@paulwenner', icon: Mail }
 ]
 
 export const Footer = () => {
