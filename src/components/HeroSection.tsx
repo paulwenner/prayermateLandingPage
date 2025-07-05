@@ -7,26 +7,26 @@ const chatMessages = [
     id: 1,
     type: 'bot',
     text: 'Welcome! Remember, God has great plans for you.',
-    delay: 2500
+    delay: 500
   },
   {
     id: 2,
     type: 'user',
     text: 'please pray for my exam tomorrow',
-    delay: 5000
+    delay: 2000
   },
   {
     id: 3,
     type: 'bot',
     text: 'Heavenly Father, I lift up this student who is preparing for their exam. Fill them with calmness, clarity, and confidence. Grant them wisdom and recall during the test.  Amen.',
-    delay: 6500
+    delay: 3500
   },
   {
     id: 4,
     type: 'voice',
     text: 'Amen',
     size: '339,6 KB',
-    delay: 9000
+    delay: 5000
   }
 ]
 
@@ -50,7 +50,7 @@ export const HeroSection = () => {
         setVisibleMessages([])
         setIsAnimating(true)
       }, 3000)
-    }, 12000)
+    }, 8000)
   }, [isAnimating])
 
   return (
